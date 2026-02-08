@@ -1,7 +1,6 @@
-import { boolean, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 
-
-export const userTable = pgTable("user", {
+export const user = pgTable("user", {
 					id: text('id').primaryKey(),
 					name: text('name').notNull(),
  email: text('email').notNull().unique(),
@@ -19,14 +18,14 @@ export const session = pgTable("session", {
  updatedAt: timestamp('updated_at').notNull(),
  ipAddress: text('ip_address'),
  userAgent: text('user_agent'),
- userId: text('user_id').notNull().references(()=> userTable.id, { onDelete: 'cascade' })
+ userId: text('user_id').notNull().references(()=> user.id, { onDelete: 'cascade' })
 				});
 
 export const account = pgTable("account", {
 					id: text('id').primaryKey(),
 					accountId: text('account_id').notNull(),
  providerId: text('provider_id').notNull(),
- userId: text('user_id').notNull().references(()=> userTable.id, { onDelete: 'cascade' }),
+ userId: text('user_id').notNull().references(()=> user.id, { onDelete: 'cascade' }),
  accessToken: text('access_token'),
  refreshToken: text('refresh_token'),
  idToken: text('id_token'),
@@ -46,34 +45,3 @@ export const verification = pgTable("verification", {
  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()),
  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date())
 				});
-
-
-export const categoryTable = pgTable('categories', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
-
-export const productTable = pgTable('products', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  categoryId: uuid('category_id').references(() => categoryTable.id, { onDelete: 'set null' }).notNull(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  description: text('description').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
-
-export const productVariantTable = pgTable('product_variants', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  productId: uuid('product_id').references(() => productTable.id, { onDelete: 'cascade' }).notNull(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  color: text('color').notNull(),
-  priceInCents: integer('price_in_cents').notNull(),
-  imageUrl: text('image_url').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});

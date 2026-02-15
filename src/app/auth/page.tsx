@@ -1,8 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
 import { SignInForm } from "./components/sign-in-form";
 import { SignUpForm } from "./components/sign-up-form";
 

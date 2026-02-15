@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { authClient } from "@/lib/auth.client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
     email: z.string().email("Email inválido"),
@@ -17,6 +20,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export const SignInForm = () => {
+    const router = useRouter();
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -25,8 +29,32 @@ export const SignInForm = () => {
         },
     });
 
-    function onSubmit(values: FormData) {
-        console.log(values);
+    async function onSubmit(values: FormData) {
+        await authClient.signIn.email({
+            email: values.email,
+            password: values.password,
+            fetchOptions: {
+                onSuccess: () => {
+                    toast.success("Login realizado com sucesso");
+                    router.push("/");
+                },
+                onError: (ctx) => {
+                    // Credenciais inválidas - verifica code, status ou message
+                    if (
+                        ctx.error.code === "USER_NOT_FOUND" || 
+                        ctx.error.code === "INVALID_EMAIL_OR_PASSWORD" ||
+                        ctx.error.status === 401 ||
+                        ctx.error.message?.toLowerCase().includes("invalid email or password")
+                    ) {
+                        toast.error("Usuário não encontrado ou senha incorreta");
+                        return form.setError("email", { message: "Usuário não encontrado ou senha incorreta" });
+                    } else {
+                        toast.error("Erro ao fazer login");
+                        return form.setError("email", { message: "Erro ao fazer login" });
+                    }
+                },
+            },
+        });
     }
 
     return (
